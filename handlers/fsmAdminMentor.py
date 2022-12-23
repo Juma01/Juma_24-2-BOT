@@ -2,6 +2,7 @@ from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
+from database.bot_db import sql_command_insert
 from config import bot
 from keyboards import client_kb
 
@@ -11,7 +12,7 @@ class FSMAdmin(StatesGroup):
     name = State()
     direction = State()
     age = State()
-    group = State()
+    groups = State()
     submit = State()
 
 
@@ -56,19 +57,19 @@ async def load_age(message: types.Message, state: FSMContext):
         await message.answer("Ваша группа ?", reply_markup=client_kb.cancel_markup)
 
 
-async def load_group(message: types.Message, state: FSMContext):
+async def load_groups(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
-        data['group'] = message.text
+        data['groups'] = message.text
         await message.answer(f"Ваш ID: {data['id']}, Ваше имя: {data['name']},\n "
                              f"Вам:{data['age']} лет,Ваше направление: {data['direction']}\n"
-                             f"Ваша группа: {data['group']}")
+                             f"Ваша группа: {data['groups']}")
     await FSMAdmin.next()
     await message.answer("Всё верно?", reply_markup=client_kb.submit_markup)
 
 
 async def submit_fsm(message: types.Message, state: FSMContext):
     if message.text.lower() == 'да':
-        # запись в базу данных
+        await sql_command_insert(state)
         await state.finish()
         await message.answer('ВСЁ!')
     elif message.text.lower() == 'нет':
@@ -93,7 +94,7 @@ def register_handlers_fsmAdminMentor(dp: Dispatcher):
     dp.register_message_handler(load_name, state=FSMAdmin.name)
     dp.register_message_handler(load_direction, state=FSMAdmin.direction)
     dp.register_message_handler(load_age, state=FSMAdmin.age)
-    dp.register_message_handler(load_group, state=FSMAdmin.group)
+    dp.register_message_handler(load_groups, state=FSMAdmin.groups)
     dp.register_message_handler(submit_fsm, state=FSMAdmin.submit)
 
 

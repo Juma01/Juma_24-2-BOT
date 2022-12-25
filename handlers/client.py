@@ -3,6 +3,8 @@ from aiogram import types, Dispatcher
 from config import bot, dp
 from keyboards.client_kb import start_markup
 from database.bot_db import sql_command_random
+from glob import glob
+import random
 
 
 # @dp.message_handler(commands=['start'])
@@ -51,7 +53,9 @@ async def quiz_1(message: types.Message):
 
 # @dp.message_handler(commands=['mems'])
 async def mems(message: types.Message):
-    mem_photo = open('media/mem.jpg', 'rb')
+    lists = glob('media_mems/*')
+    image = random.choice(lists)
+    mem_photo = open(image, 'rb')
     await bot.send_photo(message.chat.id, mem_photo)
 
 

@@ -5,7 +5,7 @@ from keyboards.client_kb import start_markup
 from database.bot_db import sql_command_random
 from glob import glob
 import random
-from parsers.news import parser
+from parsers.news import ParserNew
 
 
 # @dp.message_handler(commands=['start'])
@@ -65,7 +65,7 @@ async def get_random_user(message: types.Message):
 
 
 async def get_news(message: types.Message):
-    new = parser()
+    new = ParserNew.parser()
     for i in new:
         await message.answer(
             f"{i['title']}\n\n"
